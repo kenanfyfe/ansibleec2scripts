@@ -1,0 +1,18 @@
+--- 
+- 
+  hosts: localhost
+  remote_user: ec2-user
+  connection: local
+  name: "Ansible test"
+  tasks: 
+    - 
+      ec2: 
+        aws_access_key : <KEY> 
+        aws_secret_key : <SECRET> 
+        count: 1
+        image: ami-0f57b4cec24530068 
+        instance_type: t2.micro
+        key_name: aws_ec2_connect 
+        region: us-east-2
+        wait: true
+      name: "launching AWS instance using Ansible"

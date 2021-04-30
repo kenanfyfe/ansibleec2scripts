@@ -1,0 +1,58 @@
+- 
+  become: true
+  become_user: root
+  hosts: ec2-instance
+  name: "confugure yum repo for docker"
+  tasks: 
+    - 
+      name: "Update all packages"
+      yum: 
+        name: "*"
+        state: latest
+        update_only: true
+    - 
+      name: "Ensure a list of yum packages are installed"
+      vars: 
+        packages: 
+          - python-pip
+          - yum-utils
+          - device-mapper-persistent-data
+          - lvm2
+          - amazon-linux-extras
+      yum: 
+        name: "{{ packages }}"
+        state: latest
+        update_cache: true
+    - 
+      name: "Add extras repository"
+      shell: "yum-config-manager --enable extras"
+    - 
+      name: "Install docker-ce (centos) via amazon-linux-extras packages"
+      shell: "amazon-linux-extras install docker=18.06.1 -y"
+    - 
+      name: "Enable Docker CE service at startup"
+      service: 
+        enabled: true
+        name: docker
+        state: started
+    - 
+      name: "Ensure Python pip packages are installed"
+      pip: 
+        name: "{{ packages }}"
+      vars: 
+        packages: 
+          - boto
+          - boto3
+    - 
+      docker_container: 
+        exposed_ports: 80 
+        image: "TEST IMAGE HERE"
+        name: test
+        published_ports: 80:4444
+        state: started
+    - 
+      name: "run curl"
+      register: ps
+      shell: "curl ip-172-31-22-134"
+    -
+      debug: var=ps.stdout_lines 
